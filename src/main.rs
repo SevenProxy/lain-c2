@@ -1,6 +1,7 @@
 mod error;
 mod adapter;
 mod controllers;
+mod routes;
 mod dto;
 
 
@@ -9,6 +10,10 @@ use actix_web::{
     App,
 
     web::Data,
+};
+
+use routes::{
+    RoutesUpload,
 };
 
 static PORT: u16 = 3000;
@@ -24,12 +29,14 @@ async fn main() -> std::io::Result<()>{
     });
     
 
-    HttpServer::new(|| {
+    HttpServer::new(move || {
         App::new()
-            .service()
-
+            .app_data(name_server.clone())
+            .service(
+                RoutesUpload.get()
+            )
     })
-    .bind("0.0.0.0", PORT)?
+    .bind(("0.0.0.0", PORT))?
     .run()
     .await
 }

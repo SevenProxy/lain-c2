@@ -7,11 +7,11 @@ use crate::{
 };
 
 use std::{
-    future::Future, pin::Pin,
+    future::Future,
 };
 
-type HandlerController =
-    fn(Request) -> Pin<Box<dyn Future<Output = Box<dyn Responder>> + Send>>;
+type HandlerController<R> =
+    fn(Request) -> R;
 
 pub struct RouterCreate {
     scope: Scope,
@@ -24,7 +24,11 @@ impl RouterCreate {
         }
     }
 
-    pub fn api_get(&self, route_name: &str, controller: HandlerController) -> Scope {
+    pub fn api_get<F, Fut, R>(self, route_name: &str, controller: fn(Request) -> F) -> Scope 
+    where
+        F: Future<Output = R> + 'static,
+        R: Responder + 'static,
+    {
         self.scope.route(route_name, web::get().to(
             move | req: HttpRequest | {
                 let request: Request = Request::new(req);
