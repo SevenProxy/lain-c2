@@ -10,9 +10,6 @@ use std::{
     future::Future,
 };
 
-type HandlerController<R> =
-    fn(Request) -> R;
-
 pub struct RouterCreate {
     scope: Scope,
 }
@@ -24,15 +21,17 @@ impl RouterCreate {
         }
     }
 
-    pub fn api_get<F, Fut, R>(self, route_name: &str, controller: fn(Request) -> F) -> Scope 
+    pub fn api_get<F, Fut, R>(mut self, route_name: &str, controller: F) -> Scope 
     where
-        F: Future<Output = R> + 'static,
+        F: Fn(Request) -> Fut + Clone + 'static,
+        Fut: Future<Output = R> + 'static,
         R: Responder + 'static,
     {
         self.scope.route(route_name, web::get().to(
             move | req: HttpRequest | {
                 let request: Request = Request::new(req);
-                async move { controller(request).await }
+                let ctrl: F = controller.clone();
+                async move { ctrl(request).await }
             }
         ))
     }
