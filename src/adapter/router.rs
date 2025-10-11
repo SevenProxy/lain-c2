@@ -21,7 +21,7 @@ impl RouterCreate {
         }
     }
 
-    pub fn api_get<F, Fut, R>(mut self, route_name: &str, controller: F) -> Scope 
+    pub fn api_get<F, Fut, R>(self, route_name: &str, controller: F) -> Scope 
     where
         F: Fn(Request) -> Fut + Clone + 'static,
         Fut: Future<Output = R> + 'static,

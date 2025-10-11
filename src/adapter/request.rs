@@ -25,7 +25,7 @@ impl Request {
             None => Err(ServerError::with_context(
                 // source
                 io::Error::new(io::ErrorKind::Other, "Sem endereço do peer"),
-                "IP inválido."
+                String::from("IP inválido.")
             )),
         }
     }

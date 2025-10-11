@@ -3,7 +3,8 @@ mod adapter;
 mod controllers;
 mod routes;
 mod dto;
-
+mod repository;
+mod domain;
 
 use actix_web::{
     HttpServer,
@@ -16,6 +17,9 @@ use routes::{
     RoutesUpload,
 };
 
+use repository::ConnectionPostgres;
+use sea_orm::DatabaseConnection;
+
 static PORT: u16 = 3000;
 
 pub struct AppState {
@@ -27,11 +31,17 @@ async fn main() -> std::io::Result<()>{
     let name_server: Data<AppState> = Data::new(AppState {
         app_name: "Lain Uploads".to_string()
     });
-    
+ 
+    let try_connection_db: DatabaseConnection = ConnectionPostgres::new("littleproblem", "proxy1597", "localhost", "5432", "upload").init()
+        .await
+        .expect("Error connection");
+
+    let db_conn: Data<DatabaseConnection> = Data::new(try_connection_db);
 
     HttpServer::new(move || {
         App::new()
             .app_data(name_server.clone())
+            .app_data(db_conn.clone())
             .service(
                 RoutesUpload.get()
             )
