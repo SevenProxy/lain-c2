@@ -10,7 +10,7 @@ use crate::{
 pub struct UploadController;
 
 impl UploadController {
-    pub async fn hello(_req: Request) -> Response {
+    pub async fn upload(_req: Request) -> Response {
         let message_response: JsonResponse = JsonResponse {
             status: true,
             message: Some(String::from("Welcome")),

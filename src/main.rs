@@ -3,9 +3,9 @@ mod adapter;
 mod controllers;
 mod routes;
 mod dto;
-mod repository;
+mod database;
 mod domain;
-
+mod application;
 
 use actix_web::{
     HttpServer,
@@ -18,7 +18,7 @@ use routes::{
     RoutesUpload,
 };
 
-use repository::ConnectionPostgres;
+use database::ConnectionPostgres;
 use sea_orm::DatabaseConnection;
 
 static PORT: u16 = 3000;
