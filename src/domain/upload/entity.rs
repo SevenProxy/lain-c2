@@ -10,8 +10,6 @@ pub struct Model {
     pub file_size: i64,
     pub storage_path: String,
 
-    pub description: Option<String>,
-
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,
 

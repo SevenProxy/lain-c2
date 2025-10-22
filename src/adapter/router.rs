@@ -1,3 +1,4 @@
+use actix_multipart::Multipart;
 use actix_web::{
     web, HttpRequest, Responder, Scope,
 };
@@ -35,4 +36,20 @@ impl RouterCreate {
             }
         ))
     }
+
+    pub fn api_upload<F, Fut, R>(self, route_name: &str, controller: F) -> Scope
+    where 
+        F: Fn(Multipart) -> Fut + Clone + 'static,
+        Fut: Future<Output = R> + 'static,
+        R: Responder + 'static,
+    {
+        self.scope.route(route_name, web::post().to(
+            move | payload: Multipart | {
+                let ctrl: F = controller.clone();
+                async move { ctrl(payload).await }
+            }
+        ))
+    }
+
+
 }
