@@ -5,6 +5,7 @@ use actix_web::{
     },
     HttpRequest,
 };
+use sea_orm::Iden;
 
 use crate::error::ServerError;
 
@@ -28,6 +29,19 @@ impl Request {
                 String::from("IP inválido.")
             )),
         }
+    }
+
+    pub fn query(&self, name: &str) -> Option<String> {
+        self.inner.query_string()
+            .split('&')
+            .find_map(|q: &str| {
+                let mut parts = q.split("=");
+                if parts.next()? == name {
+                    parts.next().map(|v: &str| v.to_string())
+                } else {
+                    None
+                }
+            })
     }
 
     pub fn headers(&self) -> &HeaderMap {

@@ -44,7 +44,7 @@ async fn main() -> std::io::Result<()>{
             .app_data(name_server.clone())
             .app_data(db_conn.clone())
             .service(
-                RoutesUpload.get()
+                RoutesUpload.post()
             )
     })
     .bind(("0.0.0.0", PORT))?

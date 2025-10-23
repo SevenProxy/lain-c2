@@ -39,14 +39,15 @@ impl RouterCreate {
 
     pub fn api_upload<F, Fut, R>(self, route_name: &str, controller: F) -> Scope
     where 
-        F: Fn(Multipart) -> Fut + Clone + 'static,
+        F: Fn(Request, Multipart) -> Fut + Clone + 'static,
         Fut: Future<Output = R> + 'static,
         R: Responder + 'static,
     {
         self.scope.route(route_name, web::post().to(
-            move | payload: Multipart | {
+            move | req: HttpRequest, payload: Multipart | {
+                let request: Request = Request::new(req);
                 let ctrl: F = controller.clone();
-                async move { ctrl(payload).await }
+                async move { ctrl(request, payload).await }
             }
         ))
     }
