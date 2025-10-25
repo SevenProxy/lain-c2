@@ -1,5 +1,6 @@
+use std::path::PathBuf;
+use actix_files::NamedFile;
 use actix_multipart::Multipart;
-use sea_orm::Iden;
 use tokio::fs::File;
 use tokio::fs;
 use futures_util::stream::TryStreamExt;
@@ -80,6 +81,30 @@ impl UploadController {
                 data: None,
             }
         )
+    }
+
+    pub async fn get_file(req: Request) -> Response {
+        let user_id = match req.params("user_id") {
+            Some(text) => text,
+            None => "none",
+        };
+        let filename = match req.params("filename") {
+            Some(text) => text,
+            None => "none",
+        };
+        
+        let file_path: String = format!("src/upload/{}/{}", user_id, filename);
+
+        let path = PathBuf::from(file_path);
+
+        if !path.exists() {
+            return Response::not_found(String::from("Arquivo não foi encontrado."));
+        }
+
+        match NamedFile::open(path) {
+            Ok(named_file) => Response::file(&req.get_request(), named_file),
+            Err(_e) => Response::internal_error(String::from("Erro ao ler mídia.")),
+        }
     }
 
 }

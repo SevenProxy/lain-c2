@@ -32,6 +32,7 @@ async fn main() -> std::io::Result<()>{
     let name_server: Data<AppState> = Data::new(AppState {
         app_name: "Lain Uploads".to_string()
     });
+    let route_upload: Data<RoutesUpload> = Data::new(RoutesUpload);
     
     let try_connection_db: DatabaseConnection = ConnectionPostgres::new("littleproblem", "proxy1597", "localhost", "5432", "upload").init()
         .await
@@ -43,8 +44,12 @@ async fn main() -> std::io::Result<()>{
         App::new()
             .app_data(name_server.clone())
             .app_data(db_conn.clone())
+            .app_data(route_upload.clone())
             .service(
-                RoutesUpload.post()
+                route_upload.post()
+            )
+            .service(
+                route_upload.get()
             )
     })
     .bind(("0.0.0.0", PORT))?

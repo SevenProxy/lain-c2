@@ -20,6 +20,10 @@ impl Request {
         }
     }
 
+    pub fn get_request(&self) -> &HttpRequest {
+        return &self.inner
+    }
+
     pub fn get_ip(&self) -> Result<IpAddr, ServerError> {
         match self.inner.peer_addr() {
             Some(addr) => Ok(addr.ip()),
@@ -52,7 +56,7 @@ impl Request {
         self.inner.method()
     }
 
-    pub fn path(&self) -> &str {
-        self.inner.path()
+    pub fn params(&self, name: &str) -> Option<&str> {
+        self.inner.match_info().get(name)
     }
 }

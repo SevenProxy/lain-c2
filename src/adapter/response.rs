@@ -1,7 +1,8 @@
 use crate::{
-    dto::JsonResponse,
+    adapter::Request, dto::JsonResponse
 };
 
+use actix_files::NamedFile;
 use actix_web::{
     body,
     Responder,
@@ -18,6 +19,18 @@ impl Response {
     pub fn ok(json: JsonResponse) -> Self {
         Self {
             response: HttpResponse::Ok().json(json),
+        }
+    }
+
+    pub fn not_found(msg: String) -> Self {
+        Self {
+            response: HttpResponse::NotFound().json(
+                JsonResponse {
+                    status: false,
+                    message: Some(msg),
+                    data: None,
+                }
+            )
         }
     }
 
@@ -38,6 +51,12 @@ impl Response {
                 message: Some(msg),
                 data: None,
             }),
+        }
+    }
+
+    pub fn file(req: &HttpRequest, file: NamedFile) -> Self {
+        Self {
+            response: file.into_response(&req),
         }
     }
 

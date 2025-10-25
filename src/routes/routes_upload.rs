@@ -10,7 +10,10 @@ pub struct RoutesUpload;
 impl RoutesUpload {
     pub fn get(&self) -> Scope {
         RouterCreate::new("/api/v1")
-            .api_get("/ping", UploadController::hello)
+            .api_get("/ping", UploadController::hello);
+        
+        RouterCreate::new("/api/v1")
+            .api_get("/upload/{user}/{filename}", UploadController::get_file)
     }
 
     pub fn post(&self) -> Scope {
