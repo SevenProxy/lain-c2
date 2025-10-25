@@ -13,7 +13,7 @@ impl RoutesUpload {
             .api_get("/ping", UploadController::hello);
         
         RouterCreate::new("/api/v1")
-            .api_get("/upload/{user}/{filename}", UploadController::get_file)
+            .api_get("/upload/{user_id}/{filename}", UploadController::get_file)
     }
 
     pub fn post(&self) -> Scope {

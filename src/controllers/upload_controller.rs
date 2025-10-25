@@ -94,9 +94,8 @@ impl UploadController {
         };
         
         let file_path: String = format!("src/upload/{}/{}", user_id, filename);
-
         let path = PathBuf::from(file_path);
-
+        
         if !path.exists() {
             return Response::not_found(String::from("Arquivo não foi encontrado."));
         }
