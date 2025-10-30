@@ -7,6 +7,14 @@ use futures_util::stream::TryStreamExt;
 use futures_util::stream::StreamExt;
 use tokio::io::AsyncWriteExt;
 
+use crate::application::{
+    UploadUseCase,
+    UserUseCase,
+};
+use crate::database::{
+    UploadRepositoryImpl,
+    UserRepositoryImpl,
+};
 use crate::{
     adapter::{
         Request,
@@ -30,7 +38,7 @@ impl UploadController {
         Response::ok(message_response)
     }
 
-    pub async fn user_upload(req: Request, mut payload: Multipart) -> Response {
+    pub async fn user_upload(req: Request, mut payload: Multipart, upload_case: &UploadUseCase<UploadRepositoryImpl>, user_case: &UserUseCase<UserRepositoryImpl>) -> Response {
         
         let user_id = match req.query("user_id") {
             Some(query) => query,

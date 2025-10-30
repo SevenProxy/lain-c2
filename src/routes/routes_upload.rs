@@ -1,23 +1,48 @@
-use actix_web::Scope;
+use actix_web::{
+    Scope,
+    web::Data,
+};
+use sea_orm::DatabaseConnection;
 
-use crate::adapter::RouterCreate;
-use crate::controllers::UploadController;
-
+use crate::{
+    adapter::RouterCreate,
+    application::{
+        UploadUseCase,
+        UserUseCase
+    },
+    controllers::UploadController,
+    database::{
+        UploadRepositoryImpl,
+        UserRepositoryImpl
+    }
+};
 
 pub struct RoutesUpload;
 
 
 impl RoutesUpload {
-    pub fn get(&self) -> Scope {
-        RouterCreate::new("/api/v1")
+    pub fn get(&self, db: &Data<DatabaseConnection>) -> Scope {
+        let user_repo: UserRepositoryImpl = UserRepositoryImpl { db: db.get_ref().clone() };
+        let user_app: UserUseCase<UserRepositoryImpl> = UserUseCase::new(user_repo);
+
+        let upload_repo: UploadRepositoryImpl = UploadRepositoryImpl { db: db.get_ref().clone() };
+        let upload_app: UploadUseCase<UploadRepositoryImpl> = UploadUseCase::new(upload_repo);
+
+        RouterCreate::new("/api/v1", &upload_app, &user_app)
             .api_get("/ping", UploadController::hello);
         
-        RouterCreate::new("/api/v1")
+        RouterCreate::new("/api/v1", &upload_app, &user_app)
             .api_get("/upload/{user_id}/{filename}", UploadController::get_file)
     }
 
-    pub fn post(&self) -> Scope {
-        RouterCreate::new("/api/v1")
+    pub fn post(&self, db: &Data<DatabaseConnection>) -> Scope {
+        let user_repo: UserRepositoryImpl = UserRepositoryImpl { db: db.get_ref().clone() };
+        let user_app: UserUseCase<UserRepositoryImpl> = UserUseCase::new(user_repo);
+
+        let upload_repo: UploadRepositoryImpl = UploadRepositoryImpl { db: db.get_ref().clone() };
+        let upload_app: UploadUseCase<UploadRepositoryImpl> = UploadUseCase::new(upload_repo);
+        
+        RouterCreate::new("/api/v1", &upload_app, &user_app)
             .api_upload("/user/upload", UploadController::user_upload)
     }
 }
