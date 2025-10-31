@@ -4,6 +4,8 @@ use actix_web::{
 };
 use sea_orm::DatabaseConnection;
 
+use std::sync::Arc;
+
 use crate::{
     adapter::RouterCreate,
     application::{
@@ -23,26 +25,26 @@ pub struct RoutesUpload;
 impl RoutesUpload {
     pub fn get(&self, db: &Data<DatabaseConnection>) -> Scope {
         let user_repo: UserRepositoryImpl = UserRepositoryImpl { db: db.get_ref().clone() };
-        let user_app: UserUseCase<UserRepositoryImpl> = UserUseCase::new(user_repo);
+        let user_app: Arc<UserUseCase<UserRepositoryImpl>> = Arc::new(UserUseCase::new(user_repo));
 
         let upload_repo: UploadRepositoryImpl = UploadRepositoryImpl { db: db.get_ref().clone() };
-        let upload_app: UploadUseCase<UploadRepositoryImpl> = UploadUseCase::new(upload_repo);
+        let upload_app: Arc<UploadUseCase<UploadRepositoryImpl>> = Arc::new(UploadUseCase::new(upload_repo));
 
-        RouterCreate::new("/api/v1", &upload_app, &user_app)
+        RouterCreate::new("/api/v1", upload_app.clone(), user_app.clone())
             .api_get("/ping", UploadController::hello);
         
-        RouterCreate::new("/api/v1", &upload_app, &user_app)
+        RouterCreate::new("/api/v1", upload_app.clone(), user_app.clone())
             .api_get("/upload/{user_id}/{filename}", UploadController::get_file)
     }
 
     pub fn post(&self, db: &Data<DatabaseConnection>) -> Scope {
         let user_repo: UserRepositoryImpl = UserRepositoryImpl { db: db.get_ref().clone() };
-        let user_app: UserUseCase<UserRepositoryImpl> = UserUseCase::new(user_repo);
+        let user_app: Arc<UserUseCase<UserRepositoryImpl>> = Arc::new(UserUseCase::new(user_repo));
 
         let upload_repo: UploadRepositoryImpl = UploadRepositoryImpl { db: db.get_ref().clone() };
-        let upload_app: UploadUseCase<UploadRepositoryImpl> = UploadUseCase::new(upload_repo);
+        let upload_app: Arc<UploadUseCase<UploadRepositoryImpl>> = Arc::new(UploadUseCase::new(upload_repo));
         
-        RouterCreate::new("/api/v1", &upload_app, &user_app)
+        RouterCreate::new("/api/v1", upload_app.clone(), user_app.clone())
             .api_upload("/user/upload", UploadController::user_upload)
     }
 }

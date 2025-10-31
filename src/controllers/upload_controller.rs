@@ -1,4 +1,7 @@
-use std::path::PathBuf;
+use std::{
+    path::PathBuf,
+    sync::Arc,
+};
 use actix_files::NamedFile;
 use actix_multipart::Multipart;
 use tokio::fs::File;
@@ -38,7 +41,7 @@ impl UploadController {
         Response::ok(message_response)
     }
 
-    pub async fn user_upload(req: Request, mut payload: Multipart, upload_case: &UploadUseCase<UploadRepositoryImpl>, user_case: &UserUseCase<UserRepositoryImpl>) -> Response {
+    pub async fn user_upload(req: Request, mut payload: Multipart, upload_case: Arc<UploadUseCase<UploadRepositoryImpl>>, user_case: Arc<UserUseCase<UserRepositoryImpl>>) -> Response {
         
         let user_id = match req.query("user_id") {
             Some(query) => query,
