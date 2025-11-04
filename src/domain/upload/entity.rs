@@ -7,7 +7,6 @@ pub struct Model {
     pub id: i32,
     pub filename: String,
     pub mime_type: String,
-    pub file_size: i64,
     pub storage_path: String,
 
     pub created_at: DateTimeUtc,

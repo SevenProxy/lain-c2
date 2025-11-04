@@ -4,8 +4,7 @@ use crate::domain::upload::{
 };
 
 use sea_orm::{
-    DbErr,
-    ActiveValue::Set,
+    ActiveValue::Set, DbErr, Iden
 };
 
 use chrono::Utc;
@@ -22,12 +21,11 @@ impl<R: UploadRepository> UploadUseCase<R> {
         }
     }
 
-    pub async fn create_upload(&self, user_id: i32, filename: String, mime_type: String, file_size: i64, storage_path: String) -> Result<entity::Model, DbErr> { 
+    pub async fn create_upload(&self, user_id: i32, filename: String, mime_type: &str, storage_path: String) -> Result<entity::Model, DbErr> { 
         let active = entity::ActiveModel { 
             user_id: Set(user_id),
             filename: Set(filename),
-            mime_type: Set(mime_type),
-            file_size: Set(file_size),
+            mime_type: Set(mime_type.to_string()),
             storage_path: Set(storage_path),
             created_at: Set(Utc::now()),
             updated_at: Set(Utc::now()),
