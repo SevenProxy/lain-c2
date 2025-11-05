@@ -31,10 +31,9 @@ impl RoutesUpload {
         let upload_app: Arc<UploadUseCase<UploadRepositoryImpl>> = Arc::new(UploadUseCase::new(upload_repo));
 
         RouterCreate::new("/api/v1", upload_app.clone(), user_app.clone())
-            .api_get("/ping", UploadController::hello);
-        
-        RouterCreate::new("/api/v1", upload_app.clone(), user_app.clone())
+            .api_get("/ping", UploadController::hello)
             .api_get("/upload/{user_id}/{filename}", UploadController::get_file)
+            .build()
     }
 
     pub fn post(&self, db: &Data<DatabaseConnection>) -> Scope {
@@ -46,5 +45,6 @@ impl RoutesUpload {
         
         RouterCreate::new("/api/v1", upload_app.clone(), user_app.clone())
             .api_upload("/user/upload", UploadController::user_upload)
+            .build()
     }
 }

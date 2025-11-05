@@ -52,12 +52,12 @@ impl UploadController {
 
         let number_query = match user_id.parse::<i32>() {
             Ok(query) => query,
-            Err(_) => return Response::not_found(String::from("Não foi possível ler ID.")),
+            Err(_) => return Response::internal_error(String::from("Não foi possível ler ID.")),
         };
 
         match user_case.find_user(number_query).await { 
             Ok(_dto) => {}, 
-            Err(_e) => return Response::not_found(String::from("Usuário não existe."))
+            Err(_e) => return Response::internal_error(String::from("Usuário não existe."))
         };
 
         let user_dir: String = format!("src/upload/{}/", sanitize_filename::sanitize(&user_id));

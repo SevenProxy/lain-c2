@@ -46,6 +46,9 @@ async fn main() -> std::io::Result<()>{
             .app_data(db_conn.clone())
             .app_data(route_upload.clone())
             .service(
+                route_upload.get(&db_conn)
+            )
+            .service(
                 route_upload.post(&db_conn)
             )
     })

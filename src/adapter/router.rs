@@ -38,39 +38,53 @@ impl RouterCreate {
         }
     }
 
-    pub fn api_get<F, Fut, R>(self, route_name: &str, controller: F) -> Scope 
+    pub fn api_get<F, Fut, R>(mut self, route_name: &str, controller: F) -> Self 
     where
         F: Fn(Request) -> Fut + Clone + 'static,
         Fut: Future<Output = R> + 'static,
         R: Responder + 'static,
     {
-        self.scope.route(route_name, web::get().to(
+        let route = web::get().to(
             move | req: HttpRequest | {
                 let request: Request = Request::new(req);
                 let ctrl: F = controller.clone();
                 async move { ctrl(request).await }
             }
-        ))
+        );
+
+        self.scope = self.scope.route(route_name, route);
+        self
     }
     
 
-    pub fn api_upload<F, Fut, R>(self, route_name: &str, controller: F) -> Scope
+    pub fn api_upload<F, Fut, R>(mut self, route_name: &str, controller: F) -> Self
     where 
         F: Fn(Request, Multipart, Arc<UploadUseCase<UploadRepositoryImpl>>, Arc<UserUseCase<UserRepositoryImpl>>) -> Fut + Clone + 'static,
         Fut: Future<Output = R> + 'static,
         R: Responder + 'static,
     {
-        self.scope.route(route_name, web::post().to(
+
+        let upload_case: Arc<UploadUseCase<UploadRepositoryImpl>> = self.upload_case.clone();
+        let user_case: Arc<UserUseCase<UserRepositoryImpl>> = self.user_case.clone();
+
+        let route = web::post().to(
             move | req: HttpRequest, payload: Multipart | {
                 let request: Request = Request::new(req);
                 let ctrl: F = controller.clone();
 
-                let upload_case: Arc<UploadUseCase<UploadRepositoryImpl>> = self.upload_case.clone();
-                let user_case: Arc<UserUseCase<UserRepositoryImpl>> = self.user_case.clone();
-
+                let upload_case: Arc<UploadUseCase<UploadRepositoryImpl>> = upload_case.clone();
+                let user_case: Arc<UserUseCase<UserRepositoryImpl>> = user_case.clone();
+                
                 async move { ctrl(request, payload, upload_case, user_case).await }
             }
-        ))
-    }
+        );
 
+
+        self.scope = self.scope.route(route_name, route);
+        self
+    }
+    
+    pub fn build(self) -> Scope {
+        self.scope
+    }
 }
