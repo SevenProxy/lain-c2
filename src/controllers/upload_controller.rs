@@ -112,11 +112,22 @@ impl UploadController {
         )
     }
 
-    pub async fn get_file(req: Request) -> Response {
+    pub async fn get_file(req: Request, user_case: Arc<UserUseCase<UserRepositoryImpl>>) -> Response {
         let user_id = match req.params("user_id") {
             Some(text) => text,
             None => "none",
         };
+
+        let number_query = match user_id.parse::<i32>() {
+            Ok(query) => query,
+            Err(_) => return Response::internal_error(String::from("Não foi possível ler ID.")),
+        };
+
+        match user_case.find_user(number_query).await {
+            Ok(_) => {},
+            Err(_) => return Response::not_found(String::from("Usuário não foi encontrado."))
+        }
+
         let filename = match req.params("filename") {
             Some(text) => text,
             None => "none",
